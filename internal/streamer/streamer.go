@@ -20,8 +20,9 @@ type PlaylistProvider interface {
 }
 
 type Streamer struct {
-	playlist PlaylistProvider
-	name     string
+	playlist     PlaylistProvider
+	name         string
+	lastConnLog time.Time
 }
 
 func New(playlist PlaylistProvider, name string) *Streamer {
@@ -55,7 +56,11 @@ func (s *Streamer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	trackIdx := int(elapsed/DefaultTrackDuration) % len(tracks)
 	frac := float64(elapsed%DefaultTrackDuration) / float64(DefaultTrackDuration)
 
-	log.Printf("[%s] connected → %s (%.0f%% in)", s.name, filepath.Base(tracks[trackIdx]), frac*100)
+	// Deduplicate VLC probe connections (arrive within 1s of each other)
+	if time.Since(s.lastConnLog) > time.Second {
+		log.Printf("[%s] connected → %s (%.0f%% in)", s.name, filepath.Base(tracks[trackIdx]), frac*100)
+		s.lastConnLog = time.Now()
+	}
 
 	// Stream virtual track (seeked), then loop the rest
 	pos := trackIdx
