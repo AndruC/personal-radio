@@ -48,6 +48,8 @@ func (s *Streamer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 			return
 		}
+		// Advance past the virtual track so the loop picks up the next one
+		s.playlist.Next()
 	}
 
 	for {
