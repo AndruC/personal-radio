@@ -40,8 +40,8 @@ func TestManagerCreateStation(t *testing.T) {
 	if st.Name() != "Test" {
 		t.Errorf("name = %s, want Test", st.Name())
 	}
-	if st.Mount() != "/test" {
-		t.Errorf("mount = %s, want /test", st.Mount())
+	if st.Mount() != "test" {
+		t.Errorf("mount = %s, want test", st.Mount())
 	}
 }
 

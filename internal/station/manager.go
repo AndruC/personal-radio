@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"path/filepath"
+	"strings"
 
 	"radio/internal/config"
 	"radio/internal/playlist"
@@ -109,7 +110,7 @@ func (m *Manager) createStation(sc config.StationConfig) (*StationInfo, error) {
 
 	si := &StationInfo{
 		name:       sc.Name,
-		mount:      sc.Mount,
+		mount:      strings.TrimPrefix(sc.Mount, "/"),
 		trackCount: len(tracks),
 		Config:     sc,
 		streamer:   s,

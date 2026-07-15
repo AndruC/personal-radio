@@ -27,14 +27,14 @@ func main() {
 	for _, st := range mgr.AllStations() {
 		s := mgr.StreamerFor(st.Name())
 		if s != nil {
-			mux.Handle("/stream"+st.Mount(), s)
+			mux.Handle("/stream/"+st.Mount(), s)
 		}
 	}
 
 	addr := fmt.Sprintf(":%d", mgr.Port())
 	log.Printf("Radio server starting on http://localhost%s", addr)
 	for _, st := range mgr.AllStations() {
-		log.Printf("  %s: http://localhost%s/stream%s", st.Name(), addr, st.Mount())
+		log.Printf("  %s: http://localhost%s/stream/%s", st.Name(), addr, st.Mount())
 	}
 
 	if err := http.ListenAndServe(addr, mux); err != nil {
