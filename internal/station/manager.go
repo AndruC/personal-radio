@@ -147,6 +147,10 @@ func (m *Manager) AddSource(stationName, source string) error {
 		return fmt.Errorf("station %q not found", stationName)
 	}
 
+	// Strip quotes and whitespace from copy-pasted paths
+	source = strings.TrimSpace(source)
+	source = strings.Trim(source, "\"'")
+
 	fullPath := source
 	if !filepath.IsAbs(source) {
 		fullPath = filepath.Join(m.cfg.Server.MusicDir, source)
