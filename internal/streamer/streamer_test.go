@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 )
 
 func createSilentMP3(t *testing.T, dir, name string) string {
@@ -24,31 +25,10 @@ func createSilentMP3(t *testing.T, dir, name string) string {
 
 type fakePlaylist struct {
 	tracks []string
-	pos    int
 }
 
-func (f *fakePlaylist) Next() (string, bool) {
-	if f.pos >= len(f.tracks) {
-		return "", false
-	}
-	track := f.tracks[f.pos]
-	f.pos++
-	return track, true
-}
-
-func (f *fakePlaylist) SyncToVirtual() (string, float64) {
-	if len(f.tracks) == 0 {
-		return "", 0
-	}
-	return f.tracks[0], 0
-}
-
-func (f *fakePlaylist) Current() string {
-	if f.pos > 0 && f.pos <= len(f.tracks) {
-		return f.tracks[f.pos-1]
-	}
-	return ""
-}
+func (f *fakePlaylist) Tracks() []string    { return f.tracks }
+func (f *fakePlaylist) StartTime() time.Time { return time.Now() }
 
 func TestStreamerICYHeaders(t *testing.T) {
 	dir := t.TempDir()

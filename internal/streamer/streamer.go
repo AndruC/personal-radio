@@ -3,16 +3,20 @@ package streamer
 import (
 	"io"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
+// DefaultTrackDuration is the assumed duration per track for virtual clock.
+const DefaultTrackDuration = 3 * time.Minute
+
 type PlaylistProvider interface {
-	Next() (string, bool)
-	Current() string
-	SyncToVirtual() (string, float64)
+	Tracks() []string
+	StartTime() time.Time
 }
 
 type Streamer struct {
@@ -40,30 +44,38 @@ func (s *Streamer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	flusher, canFlush := w.(http.Flusher)
 
-	log.Printf("[%s] listener connected", s.name)
-
-	// Sync to virtual broadcast position, seek into the track
-	trackPath, frac := s.playlist.SyncToVirtual()
-	if trackPath != "" {
-		log.Printf("[%s] virtual track: %s (%.0f%%) ", s.name, filepath.Base(trackPath), frac*100)
-		if err := s.streamFileSeek(w, trackPath, frac, canFlush, flusher); err != nil {
-			if !isClientDisconnect(err) {
-				log.Printf("[%s] stream error: %v", s.name, err)
-			}
-			return
-		}
-		// Advance past the virtual track so the loop picks up the next one
-		s.playlist.Next()
-	} else {
+	tracks := s.playlist.Tracks()
+	if len(tracks) == 0 {
 		log.Printf("[%s] no tracks in playlist", s.name)
+		return
 	}
 
-	for {
-		trackPath, ok := s.playlist.Next()
-		if !ok {
-			log.Printf("[%s] playlist ended", s.name)
-			return
+	log.Printf("[%s] listener connected (%d tracks)", s.name, len(tracks))
+
+	// Each connection gets its own independent cursor.
+	// Calculate virtual position once and iterate from there.
+	startTime := s.playlist.StartTime()
+	elapsed := time.Since(startTime)
+	trackIdx := int(elapsed/DefaultTrackDuration) % len(tracks)
+	frac := float64(elapsed%DefaultTrackDuration) / float64(DefaultTrackDuration)
+
+	// Play the virtual track with seek
+	virtualTrack := tracks[trackIdx]
+	log.Printf("[%s] virtual track: %s (%.0f%%)", s.name, filepath.Base(virtualTrack), frac*100)
+	if err := s.streamFileSeek(w, virtualTrack, frac, canFlush, flusher); err != nil {
+		if !isClientDisconnect(err) {
+			log.Printf("[%s] stream error: %v", s.name, err)
+		} else {
+			log.Printf("[%s] client disconnected", s.name)
 		}
+		return
+	}
+
+	// Loop through remaining tracks from local cursor
+	pos := trackIdx
+	for {
+		pos = (pos + 1) % len(tracks)
+		trackPath := tracks[pos]
 
 		log.Printf("[%s] now playing: %s", s.name, filepath.Base(trackPath))
 		err := s.streamFile(w, trackPath, canFlush, flusher)
@@ -87,12 +99,10 @@ func (s *Streamer) streamFileSeek(w io.Writer, path string, frac float64, canFlu
 	}
 	defer f.Close()
 
-	// Seek into the file based on virtual time fraction
 	if frac > 0 {
 		info, err := f.Stat()
 		if err == nil && info.Size() > 0 {
 			offset := int64(float64(info.Size()) * frac)
-			// Align to a sensible boundary
 			offset = offset - (offset % 4096)
 			f.Seek(offset, io.SeekStart)
 		}
@@ -142,4 +152,14 @@ func isClientDisconnect(err error) bool {
 		strings.Contains(s, "broken pipe") ||
 		strings.Contains(s, "connection reset") ||
 		strings.Contains(s, "closed pipe")
+}
+
+// Shuffle returns a shuffled copy of the given slice.
+func Shuffle(tracks []string) []string {
+	shuffled := make([]string, len(tracks))
+	copy(shuffled, tracks)
+	rand.Shuffle(len(shuffled), func(i, j int) {
+		shuffled[i], shuffled[j] = shuffled[j], shuffled[i]
+	})
+	return shuffled
 }
