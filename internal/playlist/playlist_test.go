@@ -81,3 +81,25 @@ func TestPlaylistCurrent(t *testing.T) {
 		t.Errorf("Current() changed after second call")
 	}
 }
+
+func TestPlaylistSyncToVirtual(t *testing.T) {
+	p := New([]string{"/music/a.mp3", "/music/b.mp3", "/music/c.mp3"})
+
+	// Immediately after creation, SyncToVirtual should pick the first track
+	// (elapsed < 3 min, so track index 0)
+	virt := p.SyncToVirtual()
+	next, ok := p.Next()
+	if !ok {
+		t.Fatal("Next() returned false")
+	}
+	if virt != next {
+		t.Errorf("SyncToVirtual() = %s, but Next() = %s — should match", virt, next)
+	}
+}
+
+func TestPlaylistSyncToVirtualEmpty(t *testing.T) {
+	p := New(nil)
+	if s := p.SyncToVirtual(); s != "" {
+		t.Errorf("SyncToVirtual on empty = %q, want empty", s)
+	}
+}

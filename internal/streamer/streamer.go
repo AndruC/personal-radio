@@ -10,6 +10,7 @@ import (
 type PlaylistProvider interface {
 	Next() (string, bool)
 	Current() string
+	SyncToVirtual() string
 }
 
 type Streamer struct {
@@ -37,6 +38,9 @@ func (s *Streamer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	flusher, canFlush := w.(http.Flusher)
 
+	// Sync to virtual broadcast position, then loop normally
+	s.playlist.SyncToVirtual()
+
 	for {
 		trackPath, ok := s.playlist.Next()
 		if !ok {
@@ -55,7 +59,7 @@ func (s *Streamer) streamFile(w io.Writer, path string, canFlush bool, flusher h
 	f, err := os.Open(path)
 	if err != nil {
 		log.Printf("cannot open %s: %v", path, err)
-		return nil // skip unreadable files
+		return nil
 	}
 	defer f.Close()
 

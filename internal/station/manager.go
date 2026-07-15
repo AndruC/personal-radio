@@ -159,7 +159,7 @@ func (m *Manager) AddSource(stationName, source string) error {
 	st.trackCount += len(newTracks)
 
 	allTracks, _ := m.resolveSources(st.Config.Sources)
-	st.playlist = playlist.New(allTracks)
+	st.playlist = playlist.NewWithStartTime(allTracks, st.playlist.StartTime())
 	st.streamer = streamer.New(st.playlist, st.name)
 
 	return m.saveConfig()
@@ -178,7 +178,7 @@ func (m *Manager) RemoveSource(stationName string, index int) error {
 
 	allTracks, _ := m.resolveSources(st.Config.Sources)
 	st.trackCount = len(allTracks)
-	st.playlist = playlist.New(allTracks)
+	st.playlist = playlist.NewWithStartTime(allTracks, st.playlist.StartTime())
 	st.streamer = streamer.New(st.playlist, st.name)
 
 	return m.saveConfig()

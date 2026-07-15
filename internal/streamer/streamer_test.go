@@ -36,6 +36,13 @@ func (f *fakePlaylist) Next() (string, bool) {
 	return track, true
 }
 
+func (f *fakePlaylist) SyncToVirtual() string {
+	if len(f.tracks) == 0 {
+		return ""
+	}
+	return f.tracks[0]
+}
+
 func (f *fakePlaylist) Current() string {
 	if f.pos > 0 && f.pos <= len(f.tracks) {
 		return f.tracks[f.pos-1]
