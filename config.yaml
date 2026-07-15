@@ -1,12 +1,9 @@
 server:
-    port: 8080
-    music_dir: P:\My Media\My Music
+  port: 8080
+  music_dir: "C:\\Users\\You\\Music"
+
 stations:
-    - name: Everything
-      mount: /everything
-      sources:
-        - .
-    - name: GameFM
-      mount: /game-fm
-      sources:
-        - P:\My Media\My Music\BTB's Game FM
+  - name: "Everything"
+    mount: "/everything"
+    sources:
+      - "."
