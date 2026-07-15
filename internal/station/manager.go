@@ -3,6 +3,7 @@ package station
 import (
 	"fmt"
 	"log"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -150,12 +151,27 @@ func (m *Manager) AddSource(stationName, source string) error {
 	if !filepath.IsAbs(source) {
 		fullPath = filepath.Join(m.cfg.Server.MusicDir, source)
 	}
+
+	// Validate and normalize the path
+	info, err := os.Stat(fullPath)
+	if err != nil {
+		return fmt.Errorf("path not found: %s", fullPath)
+	}
+	displaySource := source
+	if info.IsDir() {
+		// Normalize: ensure directory sources end with a separator
+		displaySource = strings.TrimRight(source, "\\/") + string(filepath.Separator)
+	}
+
 	newTracks, err := scanner.Scan(fullPath)
 	if err != nil {
 		return fmt.Errorf("scan source: %w", err)
 	}
+	if len(newTracks) == 0 {
+		return fmt.Errorf("no MP3 or OGG files found in %s", source)
+	}
 
-	st.Config.Sources = append(st.Config.Sources, source)
+	st.Config.Sources = append(st.Config.Sources, displaySource)
 	st.trackCount += len(newTracks)
 
 	allTracks, _ := m.resolveSources(st.Config.Sources)

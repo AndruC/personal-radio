@@ -28,12 +28,10 @@
             color: var(--text);
             min-height: 100vh;
             padding: 0;
-            /* scanlines */
             background-image:
                 repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px);
         }
 
-        /* --- HEADER / LOGO --- */
         nav {
             background: var(--surface);
             border-bottom: 3px solid var(--neon-pink);
@@ -48,7 +46,6 @@
             font-size: 1.5rem;
             font-weight: bold;
             color: var(--neon-green);
-            text-shadow: 0 0 10px var(--neon-green), 0 0 30px var(--neon-green);
             letter-spacing: 0.25em;
         }
         nav a {
@@ -63,22 +60,18 @@
         }
         nav a:hover {
             border-color: var(--neon-cyan);
-            text-shadow: 0 0 8px var(--neon-cyan);
             box-shadow: 0 0 10px #00f0ff44;
         }
 
-        /* --- MAIN CONTAINER --- */
         main {
             max-width: 900px;
             margin: 2rem auto;
             padding: 0 1.5rem;
         }
 
-        /* --- HEADINGS --- */
         h1 {
             font-size: 2rem;
             color: var(--neon-yellow);
-            text-shadow: 0 0 12px var(--neon-yellow), 0 0 30px #ffe60055;
             text-transform: uppercase;
             letter-spacing: 0.2em;
             margin-bottom: 1.5rem;
@@ -87,7 +80,6 @@
         }
         h2 {
             color: var(--neon-green);
-            text-shadow: 0 0 6px var(--neon-green);
             letter-spacing: 0.1em;
             margin: 0.5rem 0;
         }
@@ -98,7 +90,6 @@
             margin: 1rem 0 0.5rem;
         }
 
-        /* --- STATION CARDS --- */
         .station-card {
             background: var(--surface);
             border: 2px solid var(--neon-cyan);
@@ -136,10 +127,8 @@
             font-size: 0.85rem;
             border: 1px solid var(--neon-yellow);
             margin-top: 0.5rem;
-            text-shadow: 0 0 5px var(--neon-yellow);
         }
 
-        /* --- BUTTONS --- */
         button, .btn {
             font-family: inherit;
             background: #000;
@@ -169,7 +158,6 @@
             box-shadow: 0 0 15px var(--neon-pink);
         }
 
-        /* --- FORMS & INPUTS --- */
         input, select {
             font-family: inherit;
             background: #000;
@@ -194,7 +182,6 @@
             letter-spacing: 0.1em;
         }
 
-        /* --- TABLES --- */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -218,7 +205,6 @@
             background: #ffffff05;
         }
 
-        /* --- LISTS --- */
         ul {
             list-style: none;
             padding: 0;
@@ -237,7 +223,6 @@
             border-color: var(--neon-cyan);
         }
 
-        /* --- DETAILS / NEW STATION --- */
         details {
             margin-top: 2rem;
             border: 1px dashed var(--neon-purple);
@@ -260,28 +245,18 @@
             font-size: 0.9rem;
         }
 
-        /* --- STATUS / NOW PLAYING --- */
         .now-playing {
             color: var(--neon-green);
             font-style: normal;
-            text-shadow: 0 0 6px var(--neon-green);
         }
 
-        /* --- HR --- */
-        hr {
-            display: none;
-        }
+        hr { display: none; }
 
-        /* --- LINKS --- */
         a {
             color: var(--neon-cyan);
             text-decoration: none;
         }
-        a:hover {
-            text-shadow: 0 0 8px var(--neon-cyan);
-        }
 
-        /* --- EMPTY STATE --- */
         .empty {
             color: #555;
             font-style: italic;
@@ -290,7 +265,6 @@
             border: 1px dashed #333;
         }
 
-        /* --- BACK LINK --- */
         .back-link {
             display: inline-block;
             margin-top: 2rem;
@@ -300,7 +274,6 @@
             font-size: 0.85rem;
         }
 
-        /* --- CORNER CUTS on cards --- */
         .corner-cut {
             clip-path: polygon(0 12px, 12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
         }
