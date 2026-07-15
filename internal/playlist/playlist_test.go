@@ -86,8 +86,8 @@ func TestPlaylistSyncToVirtual(t *testing.T) {
 	p := New([]string{"/music/a.mp3", "/music/b.mp3", "/music/c.mp3"})
 
 	// Immediately after creation, SyncToVirtual should pick the first track
-	// (elapsed < 3 min, so track index 0)
-	virt := p.SyncToVirtual()
+	// (elapsed < 3 min, so track index 0, frac near 0)
+	virt, frac := p.SyncToVirtual()
 	next, ok := p.Next()
 	if !ok {
 		t.Fatal("Next() returned false")
@@ -95,11 +95,14 @@ func TestPlaylistSyncToVirtual(t *testing.T) {
 	if virt != next {
 		t.Errorf("SyncToVirtual() = %s, but Next() = %s — should match", virt, next)
 	}
+	if frac < 0 || frac >= 1 {
+		t.Errorf("frac = %f, want between 0 and 1", frac)
+	}
 }
 
 func TestPlaylistSyncToVirtualEmpty(t *testing.T) {
 	p := New(nil)
-	if s := p.SyncToVirtual(); s != "" {
+	if s, _ := p.SyncToVirtual(); s != "" {
 		t.Errorf("SyncToVirtual on empty = %q, want empty", s)
 	}
 }

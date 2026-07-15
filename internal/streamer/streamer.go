@@ -11,7 +11,7 @@ import (
 type PlaylistProvider interface {
 	Next() (string, bool)
 	Current() string
-	SyncToVirtual() string
+	SyncToVirtual() (string, float64)
 }
 
 type Streamer struct {
@@ -39,8 +39,16 @@ func (s *Streamer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	flusher, canFlush := w.(http.Flusher)
 
-	// Sync to virtual broadcast position, then loop normally
-	s.playlist.SyncToVirtual()
+	// Sync to virtual broadcast position, seek into the track
+	trackPath, frac := s.playlist.SyncToVirtual()
+	if trackPath != "" {
+		if err := s.streamFileSeek(w, trackPath, frac, canFlush, flusher); err != nil {
+			if !isClientDisconnect(err) {
+				log.Printf("stream error on %s: %v", trackPath, err)
+			}
+			return
+		}
+	}
 
 	for {
 		trackPath, ok := s.playlist.Next()
@@ -58,6 +66,28 @@ func (s *Streamer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (s *Streamer) streamFileSeek(w io.Writer, path string, frac float64, canFlush bool, flusher http.Flusher) error {
+	f, err := os.Open(path)
+	if err != nil {
+		log.Printf("cannot open %s: %v", path, err)
+		return nil
+	}
+	defer f.Close()
+
+	// Seek into the file based on virtual time fraction
+	if frac > 0 {
+		info, err := f.Stat()
+		if err == nil && info.Size() > 0 {
+			offset := int64(float64(info.Size()) * frac)
+			// Align to a sensible boundary
+			offset = offset - (offset % 4096)
+			f.Seek(offset, io.SeekStart)
+		}
+	}
+
+	return s.readFile(w, f, canFlush, flusher)
+}
+
 func (s *Streamer) streamFile(w io.Writer, path string, canFlush bool, flusher http.Flusher) error {
 	f, err := os.Open(path)
 	if err != nil {
@@ -66,6 +96,10 @@ func (s *Streamer) streamFile(w io.Writer, path string, canFlush bool, flusher h
 	}
 	defer f.Close()
 
+	return s.readFile(w, f, canFlush, flusher)
+}
+
+func (s *Streamer) readFile(w io.Writer, f *os.File, canFlush bool, flusher http.Flusher) error {
 	buf := make([]byte, 16*1024)
 	for {
 		n, err := f.Read(buf)
@@ -86,8 +120,6 @@ func (s *Streamer) streamFile(w io.Writer, path string, canFlush bool, flusher h
 	}
 }
 
-// isClientDisconnect returns true if the error is from a client disconnecting,
-// which is normal and should not be logged as an error.
 func isClientDisconnect(err error) bool {
 	if err == nil {
 		return false

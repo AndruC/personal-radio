@@ -36,17 +36,21 @@ func NewWithStartTime(tracks []string, start time.Time) *Playlist {
 func (p *Playlist) StartTime() time.Time { return p.startTime }
 
 // SyncToVirtual jumps the playlist to the track that should be playing
-// based on elapsed time since the station started. Returns the track path.
-// The caller should then stream this track, and use Next() for subsequent tracks.
-func (p *Playlist) SyncToVirtual() string {
+// based on elapsed time since the station started.
+// Returns the track path and the fraction (0.0–1.0) into the track.
+func (p *Playlist) SyncToVirtual() (string, float64) {
 	if len(p.tracks) == 0 {
-		return ""
+		return "", 0
 	}
 	elapsed := time.Since(p.startTime)
 	trackIdx := int(elapsed/p.trackDur) % len(p.tracks)
+	// Fraction within this track's time slot
+	slotElapsed := elapsed % p.trackDur
+	frac := float64(slotElapsed) / float64(p.trackDur)
+
 	// Set current just before so Next() returns the virtual track
 	p.current = (trackIdx - 1 + len(p.tracks)) % len(p.tracks)
-	return p.tracks[trackIdx]
+	return p.tracks[trackIdx], frac
 }
 
 func (p *Playlist) Next() (string, bool) {

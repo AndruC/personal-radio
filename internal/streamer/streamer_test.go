@@ -36,11 +36,11 @@ func (f *fakePlaylist) Next() (string, bool) {
 	return track, true
 }
 
-func (f *fakePlaylist) SyncToVirtual() string {
+func (f *fakePlaylist) SyncToVirtual() (string, float64) {
 	if len(f.tracks) == 0 {
-		return ""
+		return "", 0
 	}
-	return f.tracks[0]
+	return f.tracks[0], 0
 }
 
 func (f *fakePlaylist) Current() string {

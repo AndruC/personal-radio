@@ -12,7 +12,8 @@
 <h3>◆ ADD SOURCE</h3>
 <form hx-post="/stations/{{.Station.Name}}/sources"
       hx-target="#sources-list"
-      hx-swap="outerHTML">
+      hx-swap="outerHTML"
+      hx-on::after-request="if(event.detail.successful) this.querySelector('input').value=''">
     <input type="text" name="source" placeholder="folder or file path" required>
     <button type="submit">ADD</button>
 </form>
