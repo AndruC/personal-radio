@@ -4,6 +4,20 @@
 <p>Stream URL: <code>http://localhost:{{.Port}}/stream/{{.Station.Mount}}</code></p>
 
 <h2>Sources</h2>
+{{template "sources-list" .}}
+
+<h3>Add Source</h3>
+<form hx-post="/stations/{{.Station.Name}}/sources"
+      hx-target="#sources-list"
+      hx-swap="outerHTML">
+    <input type="text" name="source" placeholder="Folder or file path" required>
+    <button type="submit">Add</button>
+</form>
+
+<p><a href="/">← Back to Dashboard</a></p>
+{{end}}
+
+{{define "sources-list"}}
 <ul id="sources-list">
 {{range $i, $src := .Station.Sources}}
     <li>
@@ -16,14 +30,4 @@
     <li>No sources. Add a folder or file below.</li>
 {{end}}
 </ul>
-
-<h3>Add Source</h3>
-<form hx-post="/stations/{{.Station.Name}}/sources"
-      hx-target="#sources-list"
-      hx-swap="outerHTML">
-    <input type="text" name="source" placeholder="Folder or file path" required>
-    <button type="submit">Add</button>
-</form>
-
-<p><a href="/">← Back to Dashboard</a></p>
 {{end}}

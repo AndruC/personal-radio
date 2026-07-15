@@ -107,13 +107,8 @@ func (h *Handler) createStation(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusConflict)
 		return
 	}
-	// Re-render dashboard
-	data := map[string]any{
-		"Stations": h.mgr.StationList(),
-		"Port":     h.port,
-		"Template": "dashboard",
-	}
-	h.tmpl.ExecuteTemplate(w, "base.html", data)
+	// Redirect to dashboard to show the new station
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 func (h *Handler) handleStream(w http.ResponseWriter, r *http.Request) {
@@ -201,7 +196,7 @@ func (h *Handler) addSource(w http.ResponseWriter, r *http.Request, name string)
 		http.Error(w, "station not found", http.StatusNotFound)
 		return
 	}
-	h.tmpl.ExecuteTemplate(w, "station", map[string]any{
+	h.tmpl.ExecuteTemplate(w, "sources-list", map[string]any{
 		"Station": st,
 		"Port":    h.port,
 	})
@@ -218,7 +213,7 @@ func (h *Handler) removeSource(w http.ResponseWriter, r *http.Request, name stri
 		http.Error(w, "station not found", http.StatusNotFound)
 		return
 	}
-	h.tmpl.ExecuteTemplate(w, "station", map[string]any{
+	h.tmpl.ExecuteTemplate(w, "sources-list", map[string]any{
 		"Station": st,
 		"Port":    h.port,
 	})
