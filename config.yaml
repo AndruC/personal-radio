@@ -1,0 +1,9 @@
+server:
+  port: 8080
+  music_dir: "P:\\My Media\\My Music"
+
+stations:
+  - name: "Everything"
+    mount: "/everything"
+    sources:
+      - "."

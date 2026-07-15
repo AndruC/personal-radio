@@ -20,12 +20,12 @@ A Go server that scans a local music folder and streams MP3/OGG files as continu
 
 ```
 ┌─────────────┐     ┌──────────────┐     ┌────────────────┐
-│  Web UI     │────▶│  Station     │────▶│  Playlist      │
+│  Web UI     │────>│  Station     │────>│  Playlist      │
 │  (htmx)     │     │  Manager     │     │  Engines (N)   │
 └─────────────┘     └──────────────┘     └───────┬────────┘
                                                  │
 ┌─────────────┐     ┌──────────────┐     ┌───────▼────────┐
-│  Config     │────▶│  Music       │     │  SHOUTcast     │
+│  Config     │────>│  Music       │────>│  SHOUTcast     │
 │  File (yaml)│     │  Scanner     │     │  Streamer (N)  │
 └─────────────┘     └──────────────┘     └────────────────┘
 ```
