@@ -176,45 +176,56 @@ func (h *Handler) library(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) addSource(w http.ResponseWriter, r *http.Request, name string) {
+	st := h.mgr.Find(name)
+	if st == nil {
+		http.Error(w, "station not found", http.StatusNotFound)
+		return
+	}
+
+	data := map[string]any{
+		"Station": st,
+		"Port":    h.port,
+	}
+
 	if err := r.ParseForm(); err != nil {
-		http.Error(w, "bad form", http.StatusBadRequest)
+		data["Error"] = "bad form"
+		h.tmpl.ExecuteTemplate(w, "sources-list", data)
 		return
 	}
 	source := r.FormValue("source")
 	if source == "" {
-		http.Error(w, "source required", http.StatusBadRequest)
+		data["Error"] = "source required"
+		h.tmpl.ExecuteTemplate(w, "sources-list", data)
 		return
 	}
 
 	if err := h.mgr.AddSource(name, source); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		data["Error"] = err.Error()
+		h.tmpl.ExecuteTemplate(w, "sources-list", data)
 		return
 	}
 
-	st := h.mgr.Find(name)
-	if st == nil {
-		http.Error(w, "station not found", http.StatusNotFound)
-		return
-	}
-	h.tmpl.ExecuteTemplate(w, "sources-list", map[string]any{
-		"Station": st,
-		"Port":    h.port,
-	})
+	// Refresh station after mutation
+	st = h.mgr.Find(name)
+	data["Station"] = st
+	h.tmpl.ExecuteTemplate(w, "sources-list", data)
 }
 
 func (h *Handler) removeSource(w http.ResponseWriter, r *http.Request, name string, index int) {
-	if err := h.mgr.RemoveSource(name, index); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
 	st := h.mgr.Find(name)
 	if st == nil {
 		http.Error(w, "station not found", http.StatusNotFound)
 		return
 	}
-	h.tmpl.ExecuteTemplate(w, "sources-list", map[string]any{
-		"Station": st,
-		"Port":    h.port,
-	})
+	data := map[string]any{"Station": st, "Port": h.port}
+
+	if err := h.mgr.RemoveSource(name, index); err != nil {
+		data["Error"] = err.Error()
+		h.tmpl.ExecuteTemplate(w, "sources-list", data)
+		return
+	}
+
+	st = h.mgr.Find(name)
+	data["Station"] = st
+	h.tmpl.ExecuteTemplate(w, "sources-list", data)
 }
