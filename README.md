@@ -25,17 +25,21 @@ A Go server that turns your local music collection into internet radio stations.
 
 ## Config
 
+Edit `config.yaml` to point at your music. Sources can be folder paths (recursively scanned for MP3/OGG) or individual files. Paths are relative to `music_dir` unless they start with a drive letter.
+
 ```yaml
 server:
   port: 8080
-  music_dir: "C:\\Music"
+  music_dir: "C:\\Users\\You\\Music"
 
 stations:
   - name: "Rock"
     mount: "/rock"
     sources:
-      - "Rock"
-      - "Classic Rock"
+      - "Rock"                         # C:\Users\You\Music\Rock\
+      - "Classic Rock"                 # C:\Users\You\Music\Classic Rock\
+      - "D:\\Other Stuff\\favorites"   # Absolute path on another drive
+      - "misc\\single.mp3"             # Individual file
   - name: "Electronic"
     mount: "/electronic"
     sources:
