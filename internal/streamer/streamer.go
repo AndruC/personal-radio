@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -39,32 +40,42 @@ func (s *Streamer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	flusher, canFlush := w.(http.Flusher)
 
+	log.Printf("[%s] listener connected", s.name)
+
 	// Sync to virtual broadcast position, seek into the track
 	trackPath, frac := s.playlist.SyncToVirtual()
 	if trackPath != "" {
+		log.Printf("[%s] virtual track: %s (%.0f%%) ", s.name, filepath.Base(trackPath), frac*100)
 		if err := s.streamFileSeek(w, trackPath, frac, canFlush, flusher); err != nil {
 			if !isClientDisconnect(err) {
-				log.Printf("stream error on %s: %v", trackPath, err)
+				log.Printf("[%s] stream error: %v", s.name, err)
 			}
 			return
 		}
 		// Advance past the virtual track so the loop picks up the next one
 		s.playlist.Next()
+	} else {
+		log.Printf("[%s] no tracks in playlist", s.name)
 	}
 
 	for {
 		trackPath, ok := s.playlist.Next()
 		if !ok {
+			log.Printf("[%s] playlist ended", s.name)
 			return
 		}
 
+		log.Printf("[%s] now playing: %s", s.name, filepath.Base(trackPath))
 		err := s.streamFile(w, trackPath, canFlush, flusher)
 		if err != nil {
 			if !isClientDisconnect(err) {
-				log.Printf("stream error on %s: %v", trackPath, err)
+				log.Printf("[%s] stream error: %v", s.name, err)
+			} else {
+				log.Printf("[%s] client disconnected", s.name)
 			}
 			return
 		}
+		log.Printf("[%s] track finished, advancing", s.name)
 	}
 }
 
