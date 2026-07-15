@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 )
 
 type PlaylistProvider interface {
@@ -49,7 +50,9 @@ func (s *Streamer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		err := s.streamFile(w, trackPath, canFlush, flusher)
 		if err != nil {
-			log.Printf("stream error on %s: %v", trackPath, err)
+			if !isClientDisconnect(err) {
+				log.Printf("stream error on %s: %v", trackPath, err)
+			}
 			return
 		}
 	}
@@ -81,4 +84,17 @@ func (s *Streamer) streamFile(w io.Writer, path string, canFlush bool, flusher h
 			return err
 		}
 	}
+}
+
+// isClientDisconnect returns true if the error is from a client disconnecting,
+// which is normal and should not be logged as an error.
+func isClientDisconnect(err error) bool {
+	if err == nil {
+		return false
+	}
+	s := err.Error()
+	return strings.Contains(s, "forcibly closed") ||
+		strings.Contains(s, "broken pipe") ||
+		strings.Contains(s, "connection reset") ||
+		strings.Contains(s, "closed pipe")
 }
