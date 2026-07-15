@@ -1,0 +1,29 @@
+{{define "station"}}
+<h1>{{.Station.Name}}</h1>
+<p>Mount: <code>{{.Station.Mount}}</code> | Tracks: {{.Station.TrackCount}}</p>
+<p>Stream URL: <code>http://localhost:{{.Port}}/stream/{{.Station.Mount}}</code></p>
+
+<h2>Sources</h2>
+<ul id="sources-list">
+{{range $i, $src := .Station.Sources}}
+    <li>
+        {{$src}}
+        <button hx-delete="/stations/{{$.Station.Name}}/sources/{{$i}}"
+                hx-target="#sources-list"
+                hx-swap="outerHTML">Remove</button>
+    </li>
+{{else}}
+    <li>No sources. Add a folder or file below.</li>
+{{end}}
+</ul>
+
+<h3>Add Source</h3>
+<form hx-post="/stations/{{.Station.Name}}/sources"
+      hx-target="#sources-list"
+      hx-swap="outerHTML">
+    <input type="text" name="source" placeholder="Folder or file path" required>
+    <button type="submit">Add</button>
+</form>
+
+<p><a href="/">← Back to Dashboard</a></p>
+{{end}}

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radio Server</title>
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 800px; margin: 0 auto; padding: 1rem; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { text-align: left; padding: 0.5rem; border-bottom: 1px solid #ddd; }
+        .now-playing { color: #666; font-style: italic; }
+        button, .btn { padding: 0.3rem 0.6rem; cursor: pointer; }
+        .flash { padding: 0.5rem; margin: 0.5rem 0; border-radius: 4px; }
+        .flash-success { background: #d4edda; }
+        .flash-error { background: #f8d7da; }
+        input[type="search"] { padding: 0.3rem; width: 100%; margin-bottom: 0.5rem; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/">Dashboard</a> |
+        <a href="/library">Library</a>
+    </nav>
+    <hr>
+    {{if eq .Template "dashboard"}}{{template "dashboard" .}}{{end}}
+    {{if eq .Template "station"}}{{template "station" .}}{{end}}
+    {{if eq .Template "library"}}{{template "library" .}}{{end}}
+</body>
+</html>

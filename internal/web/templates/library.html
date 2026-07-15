@@ -1,0 +1,31 @@
+{{define "library"}}
+<h1>Music Library</h1>
+
+<input type="search" name="q"
+       hx-get="/library"
+       hx-trigger="keyup changed delay:200ms"
+       hx-target="#results"
+       hx-swap="innerHTML"
+       placeholder="Search tracks...">
+
+<div id="results">
+{{template "library-results" .}}
+</div>
+{{end}}
+
+{{define "library-results"}}
+<p>{{len .Tracks}} tracks found{{if .Query}} for "{{.Query}}"{{end}}</p>
+<table>
+    <thead><tr><th>Name</th><th>Path</th></tr></thead>
+    <tbody>
+    {{range .Tracks}}
+    <tr>
+        <td>{{.Name}}</td>
+        <td style="font-size: 0.85em; color: #666;">{{.Path}}</td>
+    </tr>
+    {{else}}
+    <tr><td colspan="2">No tracks found.</td></tr>
+    {{end}}
+    </tbody>
+</table>
+{{end}}

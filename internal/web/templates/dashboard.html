@@ -1,0 +1,16 @@
+{{define "dashboard"}}
+<h1>Stations</h1>
+{{range .Stations}}
+<div style="margin-bottom: 1rem; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
+    <h2 style="margin: 0;">
+        <a href="/stations/{{.Name}}">{{.Name}}</a>
+    </h2>
+    <p class="now-playing" hx-get="/stations/{{.Name}}/status" hx-trigger="every 5s">
+        {{.TrackCount}} tracks
+    </p>
+    <p>Stream URL: <code>http://localhost:{{$.Port}}/stream/{{.Mount}}</code></p>
+</div>
+{{else}}
+<p>No stations configured. Edit <code>config.yaml</code> to add stations.</p>
+{{end}}
+{{end}}
