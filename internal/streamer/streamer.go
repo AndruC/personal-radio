@@ -50,44 +50,32 @@ func (s *Streamer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("[%s] listener connected (%d tracks)", s.name, len(tracks))
-
-	// Each connection gets its own independent cursor.
-	// Calculate virtual position once and iterate from there.
-	startTime := s.playlist.StartTime()
-	elapsed := time.Since(startTime)
+	// Calculate virtual broadcast position
+	elapsed := time.Since(s.playlist.StartTime())
 	trackIdx := int(elapsed/DefaultTrackDuration) % len(tracks)
 	frac := float64(elapsed%DefaultTrackDuration) / float64(DefaultTrackDuration)
 
-	// Play the virtual track with seek
-	virtualTrack := tracks[trackIdx]
-	log.Printf("[%s] virtual track: %s (%.0f%%)", s.name, filepath.Base(virtualTrack), frac*100)
-	if err := s.streamFileSeek(w, virtualTrack, frac, canFlush, flusher); err != nil {
-		if !isClientDisconnect(err) {
-			log.Printf("[%s] stream error: %v", s.name, err)
-		} else {
-			log.Printf("[%s] client disconnected", s.name)
-		}
-		return
-	}
+	log.Printf("[%s] connected → %s (%.0f%% in)", s.name, filepath.Base(tracks[trackIdx]), frac*100)
 
-	// Loop through remaining tracks from local cursor
+	// Stream virtual track (seeked), then loop the rest
 	pos := trackIdx
 	for {
-		pos = (pos + 1) % len(tracks)
 		trackPath := tracks[pos]
-
-		log.Printf("[%s] now playing: %s", s.name, filepath.Base(trackPath))
-		err := s.streamFile(w, trackPath, canFlush, flusher)
+		var err error
+		if pos == trackIdx && frac > 0 {
+			err = s.streamFileSeek(w, trackPath, frac, canFlush, flusher)
+		} else {
+			err = s.streamFile(w, trackPath, canFlush, flusher)
+		}
 		if err != nil {
-			if !isClientDisconnect(err) {
-				log.Printf("[%s] stream error: %v", s.name, err)
+			if isClientDisconnect(err) {
+				log.Printf("[%s] disconnected", s.name)
 			} else {
-				log.Printf("[%s] client disconnected", s.name)
+				log.Printf("[%s] stream error: %v", s.name, err)
 			}
 			return
 		}
-		log.Printf("[%s] track finished, advancing", s.name)
+		pos = (pos + 1) % len(tracks)
 	}
 }
 
