@@ -1,12 +1,12 @@
 {{define "library"}}
-<h1>Music Library</h1>
+<h1>► MUSIC LIBRARY</h1>
 
 <input type="search" name="q"
        hx-get="/library"
        hx-trigger="keyup changed delay:200ms"
        hx-target="#results"
        hx-swap="innerHTML"
-       placeholder="Search tracks...">
+       placeholder="SEARCH TRACKS...">
 
 <div id="results">
 {{template "library-results" .}}
@@ -14,17 +14,17 @@
 {{end}}
 
 {{define "library-results"}}
-<p>{{len .Tracks}} tracks found{{if .Query}} for "{{.Query}}"{{end}}</p>
+<p style="color:var(--neon-purple); margin-bottom:0.5rem;">{{len .Tracks}} TRACKS{{if .Query}} MATCHING "{{.Query}}"{{end}}</p>
 <table>
-    <thead><tr><th>Name</th><th>Path</th></tr></thead>
+    <thead><tr><th>NAME</th><th>PATH</th></tr></thead>
     <tbody>
     {{range .Tracks}}
     <tr>
-        <td>{{.Name}}</td>
-        <td style="font-size: 0.85em; color: #666;">{{.Path}}</td>
+        <td>► {{.Name}}</td>
+        <td style="color:#666; font-size:0.85em;">{{.Path}}</td>
     </tr>
     {{else}}
-    <tr><td colspan="2">No tracks found.</td></tr>
+    <tr><td colspan="2" class="empty">NO TRACKS FOUND</td></tr>
     {{end}}
     </tbody>
 </table>

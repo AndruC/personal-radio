@@ -1,33 +1,37 @@
 {{define "station"}}
-<h1>{{.Station.Name}}</h1>
-<p>Mount: <code>{{.Station.Mount}}</code> | Tracks: {{.Station.TrackCount}}</p>
-<p>Stream URL: <code>http://localhost:{{.Port}}/stream/{{.Station.Mount}}</code></p>
+<h1>► {{.Station.Name}}</h1>
 
-<h2>Sources</h2>
+<div class="station-card">
+    <p>MOUNT: <code style="color:var(--neon-yellow)">{{.Station.Mount}}</code> &nbsp;|&nbsp; TRACKS: {{.Station.TrackCount}}</p>
+    <div class="stream-url">http://localhost:{{.Port}}/stream/{{.Station.Mount}}</div>
+</div>
+
+<h3>◆ SOURCES</h3>
 {{template "sources-list" .}}
 
-<h3>Add Source</h3>
+<h3>◆ ADD SOURCE</h3>
 <form hx-post="/stations/{{.Station.Name}}/sources"
       hx-target="#sources-list"
       hx-swap="outerHTML">
-    <input type="text" name="source" placeholder="Folder or file path" required>
-    <button type="submit">Add</button>
+    <input type="text" name="source" placeholder="folder or file path" required>
+    <button type="submit">ADD</button>
 </form>
 
-<p><a href="/">← Back to Dashboard</a></p>
+<p><a href="/" class="back-link">◄ BACK TO STATIONS</a></p>
 {{end}}
 
 {{define "sources-list"}}
 <ul id="sources-list">
 {{range $i, $src := .Station.Sources}}
     <li>
-        {{$src}}
-        <button hx-delete="/stations/{{$.Station.Name}}/sources/{{$i}}"
+        <span>► {{$src}}</span>
+        <button class="danger"
+                hx-delete="/stations/{{$.Station.Name}}/sources/{{$i}}"
                 hx-target="#sources-list"
-                hx-swap="outerHTML">Remove</button>
+                hx-swap="outerHTML">REMOVE</button>
     </li>
 {{else}}
-    <li>No sources. Add a folder or file below.</li>
+    <li style="color:#555">NO SOURCES // ADD A FOLDER OR FILE BELOW</li>
 {{end}}
 </ul>
 {{end}}
