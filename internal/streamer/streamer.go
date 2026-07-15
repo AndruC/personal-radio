@@ -68,9 +68,7 @@ func (s *Streamer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			err = s.streamFile(w, trackPath, canFlush, flusher)
 		}
 		if err != nil {
-			if isClientDisconnect(err) {
-				log.Printf("[%s] disconnected", s.name)
-			} else {
+			if !isClientDisconnect(err) {
 				log.Printf("[%s] stream error: %v", s.name, err)
 			}
 			return
