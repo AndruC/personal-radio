@@ -93,9 +93,9 @@ func main() {
 
 // makeIcon generates a 16x16 .ico file (green circle on transparent background).
 func makeIcon() []byte {
-	img := image.NewRGBA(image.Rect(0, 0, 16, 16))
+	img := image.NewRGBA(image.Rect(0, 0, 32, 32))
 	green := color.RGBA{0, 180, 0, 255}
-	cx, cy, r := 8, 8, 6
+	cx, cy, r := 15, 15, 12
 	for y := 0; y < 16; y++ {
 		for x := 0; x < 16; x++ {
 			dx, dy := x-cx, y-cy
