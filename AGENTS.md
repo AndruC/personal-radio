@@ -61,6 +61,12 @@ radio/
 - The streamer seeks into the file proportionally and starts streaming.
 - No goroutines, timers, or file I/O when nobody is listening. Zero idle cost.
 
+### Streaming: firehose to VLC buffer
+- Audio data is sent at full localhost speed, not throttled to playback rate.
+- VLC buffers the entire playlist within seconds, then plays back at real time.
+- The server goes idle immediately after sending — zero resource usage during playback.
+- Logs reflect connections, not individual tracks (the server doesn't know what VLC is playing).
+
 ### No transcoding
 - MP3 and OGG pass through as-is. Other formats are skipped.
 - Content-Type is always `audio/mpeg` (SHOUTcast convention).

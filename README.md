@@ -10,6 +10,15 @@ A Go server that turns your local music collection into internet radio stations.
 - A web dashboard lets you manage stations and add/remove music sources
 - Zero CPU or disk usage when nobody's listening
 
+### Streaming behavior
+
+The server sends audio at full localhost speed — VLC buffers the entire playlist within seconds, then plays it back at real time. This means:
+
+- The server's work is done almost instantly after you connect
+- Console logs show one connection per tune-in, not per-track
+- VLC handles gapless sequential playback from its buffer
+- The server stays idle while you listen, consuming no resources
+
 ## Quick start
 
 1. Edit `config.yaml` to point at your music folders
