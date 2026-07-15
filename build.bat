@@ -1,5 +1,12 @@
 @echo off
-set PATH=%PATH%;C:\Program Files\Go\bin
+set PATH=%PATH%;C:\Program Files\Go\bin;%USERPROFILE%\go\bin
+echo Generating resources...
+go-winres make
+if %ERRORLEVEL% NEQ 0 (
+    echo Resource generation failed!
+    pause
+    exit /b %ERRORLEVEL%
+)
 echo Building radio.exe...
 go build -ldflags="-s -w -H windowsgui" -o radio.exe .
 if %ERRORLEVEL% NEQ 0 (

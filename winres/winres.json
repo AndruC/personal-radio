@@ -1,0 +1,19 @@
+{
+  "RT_GROUP_ICON": {
+    "APP": {
+      "0001": [
+        "icon.png"
+      ]
+    }
+  },
+  "RT_MANIFEST": {
+    "#1": {
+      "0409": {
+        "identity": {
+          "name": "Radio Server",
+          "version": "1.0.0.0"
+        }
+      }
+    }
+  }
+}
