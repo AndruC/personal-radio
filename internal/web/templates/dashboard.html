@@ -11,6 +11,15 @@
     <p>Stream URL: <code>http://localhost:{{$.Port}}/stream/{{.Mount}}</code></p>
 </div>
 {{else}}
-<p>No stations configured. Edit <code>config.yaml</code> to add stations.</p>
+<p>No stations configured.</p>
 {{end}}
+
+<details style="margin-top: 1.5rem;">
+    <summary>New Station</summary>
+    <form hx-post="/stations" hx-target="body" hx-swap="outerHTML" style="margin-top: 0.5rem;">
+        <label>Name: <input type="text" name="name" required></label><br>
+        <label>Mount: <input type="text" name="mount" placeholder="/my-station" required></label><br>
+        <button type="submit" style="margin-top: 0.5rem;">Create</button>
+    </form>
+</details>
 {{end}}

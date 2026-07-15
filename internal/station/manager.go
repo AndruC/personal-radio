@@ -184,6 +184,32 @@ func (m *Manager) RemoveSource(stationName string, index int) error {
 	return m.saveConfig()
 }
 
+func (m *Manager) CreateStation(name, mount string) error {
+	if m.find(name) != nil {
+		return fmt.Errorf("station %q already exists", name)
+	}
+	sc := config.StationConfig{
+		Name:    name,
+		Mount:   mount,
+		Sources: []string{},
+	}
+	if _, err := m.createStation(sc); err != nil {
+		return err
+	}
+	m.cfg.Stations = append(m.cfg.Stations, sc)
+	return config.Save(m.configPath, m.cfg)
+}
+
+func (m *Manager) StreamerForMount(mount string) *streamer.Streamer {
+	mount = strings.TrimPrefix(mount, "/")
+	for _, s := range m.stations {
+		if s.mount == mount {
+			return s.streamer
+		}
+	}
+	return nil
+}
+
 func (m *Manager) saveConfig() error {
 	for _, st := range m.stations {
 		for i, sc := range m.cfg.Stations {

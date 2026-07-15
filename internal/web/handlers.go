@@ -38,8 +38,12 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case path == "/" && r.Method == "GET":
 		h.dashboard(w, r)
+	case path == "/stations" && r.Method == "POST":
+		h.createStation(w, r)
 	case path == "/library" && r.Method == "GET":
 		h.library(w, r)
+	case strings.HasPrefix(path, "/stream/"):
+		h.handleStream(w, r)
 	case strings.HasPrefix(path, "/stations/"):
 		h.routeStation(w, r, path)
 	default:
@@ -86,6 +90,40 @@ func (h *Handler) dashboard(w http.ResponseWriter, r *http.Request) {
 		"Template": "dashboard",
 	}
 	h.tmpl.ExecuteTemplate(w, "base.html", data)
+}
+
+func (h *Handler) createStation(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "bad form", http.StatusBadRequest)
+		return
+	}
+	name := r.FormValue("name")
+	mount := r.FormValue("mount")
+	if name == "" || mount == "" {
+		http.Error(w, "name and mount required", http.StatusBadRequest)
+		return
+	}
+	if err := h.mgr.CreateStation(name, mount); err != nil {
+		http.Error(w, err.Error(), http.StatusConflict)
+		return
+	}
+	// Re-render dashboard
+	data := map[string]any{
+		"Stations": h.mgr.StationList(),
+		"Port":     h.port,
+		"Template": "dashboard",
+	}
+	h.tmpl.ExecuteTemplate(w, "base.html", data)
+}
+
+func (h *Handler) handleStream(w http.ResponseWriter, r *http.Request) {
+	mount := strings.TrimPrefix(r.URL.Path, "/stream/")
+	s := h.mgr.StreamerForMount(mount)
+	if s == nil {
+		http.NotFound(w, r)
+		return
+	}
+	s.ServeHTTP(w, r)
 }
 
 func (h *Handler) stationDetail(w http.ResponseWriter, r *http.Request, name string) {

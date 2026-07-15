@@ -24,13 +24,6 @@ func main() {
 	mux := http.NewServeMux()
 	mux.Handle("/", handler)
 
-	for _, st := range mgr.AllStations() {
-		s := mgr.StreamerFor(st.Name())
-		if s != nil {
-			mux.Handle("/stream/"+st.Mount(), s)
-		}
-	}
-
 	addr := fmt.Sprintf(":%d", mgr.Port())
 	log.Printf("Radio server starting on http://localhost%s", addr)
 	for _, st := range mgr.AllStations() {
